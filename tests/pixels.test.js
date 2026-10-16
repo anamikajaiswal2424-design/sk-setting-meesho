@@ -67,6 +67,17 @@ test('a real page reload emits one fresh PageView per pixel',async()=>{
   assert.equal(reloaded.events.filter(event=>event[2]==='PageView').length,2);
 });
 
+test('Meta automatic history PageViews are disabled before pixel initialization',async()=>{
+  const {context:c,events}=await setup('/');
+  assert.equal(c.fbq.disablePushState,true);
+  for(const id of ['123456789','987654321']) {
+    const autoConfigIndex=events.findIndex(event=>event[0]==='set' && event[1]==='autoConfig' && event[3]===id);
+    const initIndex=events.findIndex(event=>event[0]==='init' && event[1]===id);
+    assert.ok(autoConfigIndex >= 0);
+    assert.ok(initIndex > autoConfigIndex);
+  }
+});
+
 test('success page gets PageView and one Purchase with verified amount per pixel',async()=>{
   const {context:c,events}=await setup('/success.html');
   assert.equal(events.filter(event=>event[2]==='PageView').length,2);

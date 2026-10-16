@@ -12,9 +12,11 @@
     if (!window.fbq) {
       const n = window.fbq = function(){ n.callMethod ? n.callMethod.apply(n, arguments) : n.queue.push(arguments); };
       n.push = n; n.loaded = true; n.version = '2.0'; n.queue = []; window._fbq = n;
+      n.disablePushState = true;
       const script = document.createElement('script'); script.async = true; script.src = 'https://connect.facebook.net/en_US/fbevents.js'; document.head.appendChild(script);
     }
-    ids.forEach(id => { window.fbq('init', id); window.fbq('set', 'autoConfig', false, id); });
+    window.fbq.disablePushState = true;
+    ids.forEach(id => { window.fbq('set', 'autoConfig', false, id); window.fbq('init', id); });
   }
   let readyPromise;
   function ready() {
