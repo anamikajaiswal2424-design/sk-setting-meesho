@@ -4,7 +4,7 @@
 module.exports = {
   upi: {
     // Example: merchantname@paytm
-    id: '',
+    id: 'paytm.s2uha39@pty',
 
     // Names shown to the customer in the UPI app/payment screen.
     name: 'Store',
@@ -20,7 +20,7 @@ module.exports = {
   facebookPixel: {
     // One Pixel ID: '123456789012345'
     // Multiple Pixel IDs: '123456789012345,987654321098765'
-    id: '',
+    id: '1482361990614406',
     enabled: true
   }
 };
