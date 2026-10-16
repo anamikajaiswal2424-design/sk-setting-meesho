@@ -17044,15 +17044,6 @@ function Nm() {
   } catch {}
   return gs;
 }
-function Em(f) { return; // Pixels are managed by the manual store-pixels.js configuration
-
-  if (!f.length || document.getElementById("fb-pixel-script")) return;
-  const m = f.map((o) => `fbq('init','${o}');`).join(""),
-    S = document.createElement("script");
-  ((S.id = "fb-pixel-script"),
-    (S.innerHTML = `!function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,document,'script','https://connect.facebook.net/en_US/fbevents.js');${m}fbq('track','PageView');window.__fbqReady=true;`),
-    document.head.appendChild(S));
-}
 function Tm(f) {
   if (!f || document.getElementById("ga-script")) return;
   const m = document.createElement("script");
@@ -17080,11 +17071,6 @@ function Am() {
     localStorage.setItem("nexshop_cart", JSON.stringify(T));
   }, [T]),
     q.useEffect(() => {
-      const P = (localStorage.getItem("nexshop_pixel") || "")
-        .split(",")
-        .map((Y) => Y.trim())
-        .filter(Boolean);
-      P.length && Em(P);
       const F = localStorage.getItem("nexshop_ga") || "";
       F.trim() && Tm(F.trim());
     }, []));

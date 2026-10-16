@@ -98,3 +98,11 @@ test('invalid or missing order ID is rejected before tracking',async()=>{
   await assert.rejects(()=>c.trackVerifiedPurchase({orderId:'A7DX2',amount:0,items:[]}),/invalid amount/);
   assert.equal(events.filter(event=>event[2]==='Purchase').length,0);
 });
+
+test('compiled storefront contains no secondary Meta Pixel loader',()=>{
+  for(const file of ['assets/index-MzB9xETE.js','index-MzB9xETE.js']) {
+    const source=fs.readFileSync(file,'utf8');
+    assert.doesNotMatch(source,/connect\.facebook\.net\/en_US\/fbevents\.js/);
+    assert.doesNotMatch(source,/fbq\(['"]track['"],['"]PageView['"]\)/);
+  }
+});
