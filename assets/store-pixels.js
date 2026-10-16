@@ -27,7 +27,7 @@
   let lastPath;
   const pageViews = new Set();
   async function pageview() {
-    const path = location.pathname + location.search;
+    const path = location.pathname.replace(/\/+$/, '') || '/';
     if (path === lastPath) return;
     lastPath = path;
     try {

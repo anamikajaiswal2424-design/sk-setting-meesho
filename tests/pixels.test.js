@@ -35,9 +35,22 @@ test('exactly one PageView per pixel on every page and SPA route',async()=>{
   c.history.pushState();
   await new Promise(resolve=>setImmediate(resolve));
   assert.equal(events.filter(event=>event[2]==='PageView').length,4);
+  c.location.search='?step=summary';
+  c.history.replaceState();
+  await new Promise(resolve=>setImmediate(resolve));
+  assert.equal(events.filter(event=>event[2]==='PageView').length,4);
+  c.location.search='?step=payment';
+  c.history.pushState();
+  await new Promise(resolve=>setImmediate(resolve));
+  assert.equal(events.filter(event=>event[2]==='PageView').length,4);
+  c.location.pathname='/cart/';
+  c.location.search='';
+  c.history.replaceState();
+  await new Promise(resolve=>setImmediate(resolve));
+  assert.equal(events.filter(event=>event[2]==='PageView').length,4);
 });
 
-test('the same URL emits no additional PageView after reload in the same browser session',async()=>{
+test('the same page pathname emits no additional PageView after reload in the same browser session',async()=>{
   const saved=new Map();
   const sessionStorage={getItem:key=>saved.get(key),setItem:(key,value)=>saved.set(key,value)};
   const first=await setup('/product/3',{sessionStorage});
