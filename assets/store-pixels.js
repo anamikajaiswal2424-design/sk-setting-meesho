@@ -25,7 +25,6 @@
     return readyPromise;
   }
   let lastPath;
-  const pageViews = new Set();
   async function pageview() {
     const path = location.pathname.replace(/\/+$/, '') || '/';
     if (path === lastPath) return;
@@ -33,12 +32,7 @@
     try {
       const ids = await ready();
       ids.forEach(id => {
-        const key=`pageview:${id}:${path}`;
-        if(pageViews.has(key)) return;
-        try { if(sessionStorage.getItem(key)==='1') return; } catch {}
-        pageViews.add(key);
         window.fbq('trackSingle',id,'PageView');
-        try { sessionStorage.setItem(key,'1'); } catch {}
       });
     } catch(e) { console.warn('Meta PageView unavailable:',e.message); }
   }

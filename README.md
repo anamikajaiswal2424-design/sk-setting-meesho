@@ -45,7 +45,7 @@ After payment verification, Purchase is sent through both:
 - Meta Conversions API from the server.
 
 Both use `purchase_<ORDER_ID>` as the event ID so Meta can deduplicate them.
-Every normal page, including the success page, emits one PageView per configured Pixel for each unique page pathname in the current browser session. Query-string changes, reloads, and revisits of that pathname do not emit another PageView. Purchase fires only after payment verification and uses the exact matched receipt amount as `value` with `INR` currency.
+Every normal page, including the success page, emits one PageView per configured Pixel on each full page load and each SPA pathname change. Repeated render/history calls and query-string changes on the current pathname do not emit duplicates. Purchase fires only after payment verification and uses the exact matched receipt amount as `value` with `INR` currency.
 After PayNow is opened, the payment page checks verification every one second for up to ten minutes.
 
 Set these in Vercel and redeploy:

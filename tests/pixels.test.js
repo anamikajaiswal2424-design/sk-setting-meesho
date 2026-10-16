@@ -48,15 +48,23 @@ test('exactly one PageView per pixel on every page and SPA route',async()=>{
   c.history.replaceState();
   await new Promise(resolve=>setImmediate(resolve));
   assert.equal(events.filter(event=>event[2]==='PageView').length,4);
+  c.location.pathname='/checkout';
+  c.history.pushState();
+  await new Promise(resolve=>setImmediate(resolve));
+  assert.equal(events.filter(event=>event[2]==='PageView').length,6);
+  c.location.pathname='/cart';
+  c.history.pushState();
+  await new Promise(resolve=>setImmediate(resolve));
+  assert.equal(events.filter(event=>event[2]==='PageView').length,8);
 });
 
-test('the same page pathname emits no additional PageView after reload in the same browser session',async()=>{
+test('a real page reload emits one fresh PageView per pixel',async()=>{
   const saved=new Map();
   const sessionStorage={getItem:key=>saved.get(key),setItem:(key,value)=>saved.set(key,value)};
   const first=await setup('/product/3',{sessionStorage});
   assert.equal(first.events.filter(event=>event[2]==='PageView').length,2);
   const reloaded=await setup('/product/3',{sessionStorage});
-  assert.equal(reloaded.events.filter(event=>event[2]==='PageView').length,0);
+  assert.equal(reloaded.events.filter(event=>event[2]==='PageView').length,2);
 });
 
 test('success page gets PageView and one Purchase with verified amount per pixel',async()=>{
