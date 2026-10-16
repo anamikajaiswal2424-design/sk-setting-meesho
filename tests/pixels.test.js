@@ -6,10 +6,12 @@ const fs=require('node:fs');
 async function setup(path,options={}) {
   const events=[];
   const saved=new Map();
+  const sessionSaved=new Map();
   const storage=options.localStorage || {getItem:key=>saved.get(key),setItem:(key,value)=>saved.set(key,value)};
+  const sessionStorage=options.sessionStorage || {getItem:key=>sessionSaved.get(key),setItem:(key,value)=>sessionSaved.set(key,value)};
   const fetchImpl=options.fetch || (async()=>({ok:true,json:async()=>({pixels:['123456789','987654321']})}));
   const context={
-    location:{pathname:path,search:''},fetch:fetchImpl,console:{warn(){}},sessionStorage:{setItem(){}},
+    location:{pathname:path,search:''},fetch:fetchImpl,console:{warn(){}},sessionStorage,
     document:{createElement:()=>({}),head:{appendChild(){}}},history:{pushState(){},replaceState(){}},
     addEventListener(){},setTimeout,localStorage:storage
   };
@@ -17,7 +19,7 @@ async function setup(path,options={}) {
   context.fbq=(...args)=>events.push(args);
   vm.runInNewContext(fs.readFileSync('assets/store-pixels.js','utf8'),context);
   await new Promise(resolve=>setImmediate(resolve));
-  return {context,events,saved};
+  return {context,events,saved,sessionSaved};
 }
 
 test('exactly one PageView per pixel on every page and SPA route',async()=>{
@@ -33,6 +35,15 @@ test('exactly one PageView per pixel on every page and SPA route',async()=>{
   c.history.pushState();
   await new Promise(resolve=>setImmediate(resolve));
   assert.equal(events.filter(event=>event[2]==='PageView').length,4);
+});
+
+test('the same URL emits no additional PageView after reload in the same browser session',async()=>{
+  const saved=new Map();
+  const sessionStorage={getItem:key=>saved.get(key),setItem:(key,value)=>saved.set(key,value)};
+  const first=await setup('/product/3',{sessionStorage});
+  assert.equal(first.events.filter(event=>event[2]==='PageView').length,2);
+  const reloaded=await setup('/product/3',{sessionStorage});
+  assert.equal(reloaded.events.filter(event=>event[2]==='PageView').length,0);
 });
 
 test('success page gets PageView and one Purchase with verified amount per pixel',async()=>{

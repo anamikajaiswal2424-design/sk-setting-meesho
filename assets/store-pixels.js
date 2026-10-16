@@ -1,4 +1,6 @@
 (() => {
+  if (window.__storePixelsLoaded) return;
+  window.__storePixelsLoaded = true;
   let configPromise;
   const config = () => {
     if (!configPromise) configPromise=fetch('/api/settings',{cache:'no-store'}).then(async r => { const data = await r.json(); if (!r.ok) throw Error(data.error || 'Settings unavailable'); try { sessionStorage.setItem('payment-upi-methods',JSON.stringify(data.upi)); } catch {} return data; }).catch(e => { configPromise = null; throw e; });
@@ -23,11 +25,22 @@
     return readyPromise;
   }
   let lastPath;
+  const pageViews = new Set();
   async function pageview() {
     const path = location.pathname + location.search;
     if (path === lastPath) return;
     lastPath = path;
-    try { const ids = await ready(); ids.forEach(id => window.fbq('trackSingle',id,'PageView')); } catch(e) { console.warn('Meta PageView unavailable:',e.message); }
+    try {
+      const ids = await ready();
+      ids.forEach(id => {
+        const key=`pageview:${id}:${path}`;
+        if(pageViews.has(key)) return;
+        try { if(sessionStorage.getItem(key)==='1') return; } catch {}
+        pageViews.add(key);
+        window.fbq('trackSingle',id,'PageView');
+        try { sessionStorage.setItem(key,'1'); } catch {}
+      });
+    } catch(e) { console.warn('Meta PageView unavailable:',e.message); }
   }
   ['pushState','replaceState'].forEach(method => {
     const original = history[method];
